@@ -1,0 +1,28 @@
+name: Garca
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate_and_upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Rust
+      uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+    - name: Build and run Garca code
+      run: cargo run --release
+    - name: Commit generated files
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add .
+        git commit -m "Add generated files"
+        git push
