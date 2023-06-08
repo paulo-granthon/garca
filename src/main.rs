@@ -1,4 +1,3 @@
-use std::fmt;
 use std::fs;
 use std::io::{self, Read};
 use std::path::Path;
@@ -43,6 +42,35 @@ impl Grid {
         }
 
         grid_string
+    }
+
+    // Generate an SVG string representation of the grid
+    fn to_svg_string(&self) -> String {
+        let mut svg_string = String::new();
+
+        // SVG header
+        svg_string.push_str("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"400\" height=\"400\">\n");
+
+        let cell_width = 40;
+        let cell_height = 40;
+
+        for (i, row) in self.cells.iter().enumerate() {
+            for (j, cell) in row.iter().enumerate() {
+                let x = j * cell_width;
+                let y = i * cell_height;
+
+                // SVG rectangle representing the cell
+                svg_string.push_str(&format!(
+                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" />\n",
+                    x, y, cell_width, cell_height, if *cell == 1 { "black" } else { "white" }
+                ));
+            }
+        }
+
+        // SVG footer
+        svg_string.push_str("</svg>");
+
+        svg_string
     }
 }
 
@@ -108,6 +136,9 @@ fn main() -> io::Result<()> {
     } else {
         grid.save_to_file(file_path)?;
     }
+
+    let svg_string = grid.to_svg_string();
+    fs::write("grid.svg", svg_string)?;
 
     Ok(())
 }
