@@ -44,4 +44,4 @@ on:
 - The fifth field (\*) represents the day of the week. An asterisk (\*) in this position means the job will run every day of the week.
 
 # ***todo!()***
-- [] Animate it somehow
+- [ ] Animate it somehow
