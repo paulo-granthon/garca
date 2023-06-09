@@ -2,7 +2,8 @@
 
 # **Garca** - GitHub Actions (*Rusty!*) Cellular Automata 
 
-<a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="grid.svg"></a>
+
+<a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="animation.svg"></a>
 
 This is a [Cellular Automata](https://en.wikipedia.org/wiki/Cellular_automaton) implementation in [Rust](https://www.rust-lang.org/) using [GitHub Actions](https://github.com/features/actions) to automatically update the state of the grid. The above image is the current state of the Cellular Automata environment.
 
@@ -44,4 +45,4 @@ on:
 - The fifth field (\*) represents the day of the week. An asterisk (\*) in this position means the job will run every day of the week.
 
 # ***todo!()***
-- [ ] Animate it somehow
+- [x] Animate it somehow
