@@ -1,14 +1,16 @@
 use std::fs;
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use rand::Rng;
 
 // Define the dimensions of the grid
-const GRID_WIDTH: usize = 240;
-const GRID_HEIGHT: usize = 32;
+// const GRID_WIDTH: usize = 240;
+// const GRID_HEIGHT: usize = 32;
+const GRID_WIDTH: usize = 10;
+const GRID_HEIGHT: usize = 10;
 
 // Define the scaling of the grid
-const SVG_CELL_SCALE: usize = 4;
+const SVG_CELL_SCALE: usize = 16;
 
 // Initial probability of generating an '1' cell when reseting the grid (0 ~ 100)
 const RAND_POPULATE_CHANCE: usize = 30;
@@ -16,20 +18,43 @@ const RAND_POPULATE_CHANCE: usize = 30;
 // The name of the folder where the state history of the Grid will be saved 
 const HISTORY_FOLDER: &'static str = "history";
 
+// The duration of each frame of the .svg animation in milliseconds 
+const SVG_FRAME_DURATION_MS: usize = 200;
+
 #[derive(Debug, Clone, Copy)]
 pub struct State {
     cells: [[u8; GRID_WIDTH]; GRID_HEIGHT]
 }
 
 impl State {
-    pub fn iter(&self) -> impl Iterator<Item = [u8; GRID_WIDTH]> {
+
+    fn random () -> Self {
+        let mut rng = rand::thread_rng();
+
+        let mut cells = [[0; GRID_WIDTH]; GRID_HEIGHT];
+
+        for i in 0..GRID_HEIGHT {
+            for j in 0..GRID_WIDTH {
+                cells[i][j] = if rng.gen_range(0..101) < RAND_POPULATE_CHANCE { 1 } else { 0 };
+            }
+        }
+
+        Self {
+            cells
+        }
+    }
+
+    fn iter(&self) -> impl Iterator<Item = [u8; GRID_WIDTH]> {
         self.cells.into_iter()
     }
 
     // Save the grid state to a file
-    fn save_to_file(&self, file_path: PathBuf) -> io::Result<()> {
-        let grid_string = self.to_string();
-        fs::write(file_path, grid_string)
+    fn save_to_file(&self, file_path: PathBuf) -> io::Result<String> {
+        let state_string = self.to_string();
+        let mut file = fs::File::create(&file_path)?;
+        file.write_all(state_string.as_bytes())?;
+        // file.flush()?;
+        Ok(state_string)
     }
 
     // Convert the grid to a string representation
@@ -37,7 +62,7 @@ impl State {
         let mut grid_string = String::new();
 
         for row in self.iter() {
-            let row_string = row.iter().map(|cell| cell.to_string()).collect::<Vec<_>>().join(",");
+            let row_string = row.iter().map(|cell| cell.to_string()).collect::<Vec<_>>().join("");
             grid_string.push_str(&row_string);
             grid_string.push('\n');
         }
@@ -59,6 +84,8 @@ impl State {
             .as_str(),
         );
 
+        let rows = self.cells.len();
+
         for (i, row) in self.cells.iter().enumerate() {
             for (j, cell) in row.iter().enumerate() {
                 let x = j * SVG_CELL_SCALE;
@@ -66,12 +93,13 @@ impl State {
 
                 // SVG rectangle representing the cell
                 svg_string.push_str(&format!(
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" />\n",
+                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" />{}",
                     x,
                     y,
                     SVG_CELL_SCALE,
                     SVG_CELL_SCALE,
-                    if *cell == 1 { "black" } else { "white" }
+                    if *cell == 1 { "black" } else { "white" },
+                    if i < rows - 1 { "\n" } else { "" }
                 ));
             }
         }
@@ -114,99 +142,76 @@ impl From<State> for [[u8; GRID_WIDTH]; GRID_HEIGHT] {
 
 #[derive(Default)]
 pub struct Grid {
-    state: State,
     history: Vec<State>,
 }
 
 impl Grid {
 
-    // Randomize the grid with binary cell values
-    fn randomize(&mut self) {
-        let mut rng = rand::thread_rng();
+    fn new (history: Vec<State>) -> Self {
+        Self {
+            history
+        }
+    }
 
-        for i in 0..GRID_HEIGHT {
-            for j in 0..GRID_WIDTH {
-                self.state[i][j] = if rng.gen_range(0..101) < RAND_POPULATE_CHANCE { 1 } else { 0 };
-            }
+    // Randomize the grid with binary cell values
+    fn random() -> Self {
+        Self {
+            history: vec![State::random()]
         }
     }
 
     // Save the history files in the specified folder
-    fn save_state_history(&self) -> io::Result<()> {
-        for (index, state) in self.history.iter().enumerate() {
-            let file_name = format!("state_{}.txt", index);
+    fn save_state_history(&self) -> io::Result<Vec<String>> {
+        delete_all_files_in_directory(HISTORY_FOLDER)?;
 
-            state.save_to_file(Path::new(&HISTORY_FOLDER).join(file_name))?;
+        let mut state_strings = vec![];
+
+        for (index, state) in self.history.iter().enumerate() {            
+            state_strings.push(
+                state.save_to_file(
+                    PathBuf::from(&HISTORY_FOLDER).join(format!("state_{}.txt", index))
+                )?
+            );
         }
 
-        Ok(())
-    }
-
-    // Generate an SVG string representation of the grid
-    fn to_svg_string(&self) -> String {
-        let mut svg_string = String::new();
-
-        // SVG header
-        svg_string.push_str(
-            format!(
-                "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{}\" height=\"{}\">\n",
-                GRID_WIDTH * SVG_CELL_SCALE,
-                GRID_HEIGHT * SVG_CELL_SCALE
-            ).as_str()
-        );
-
-        for (i, row) in self.state.iter().enumerate() {
-            for (j, cell) in row.iter().enumerate() {
-                let x = j * SVG_CELL_SCALE;
-                let y = i * SVG_CELL_SCALE;
-
-                // SVG rectangle representing the cell
-                svg_string.push_str(&format!(
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\" />\n",
-                    x, y, SVG_CELL_SCALE, SVG_CELL_SCALE, if *cell == 1 { "white" } else { "black" }
-                ));
-            }
-        }
-
-        // SVG footer
-        svg_string.push_str("</svg>");
-
-        svg_string
+        Ok(state_strings)
     }
 }
 
 // Define the rule for updating cell states
 fn update_cell_state(grid: &mut Grid) -> bool {
-    let mut new_grid = State::default();
     let mut changed = false;
+    
+    if grid.history.len() < 1 { return false; }
+
+    let mut new_state : State = grid.history[0].clone();
 
     for i in 0..GRID_HEIGHT {
         for j in 0..GRID_WIDTH {
-            let cell = grid.state[i][j];
-            let neighbors = count_neighbors(&grid.state.cells, i, j);
+            let cell = new_state[i][j];
+            let neighbors = count_neighbors(&new_state, i, j);
 
             if cell == 1 && neighbors < 2 {
-                new_grid[i][j] = 0; // Cell dies due to underpopulation
+                new_state[i][j] = 0; // Cell dies due to underpopulation
                 changed = true;
             } else if cell == 1 && (neighbors == 2 || neighbors == 3) {
-                new_grid[i][j] = 1; // Cell survives to the next generation
+                new_state[i][j] = 1; // Cell survives to the next generation
             } else if cell == 1 && neighbors > 3 {
-                new_grid[i][j] = 0; // Cell dies due to overpopulation
+                new_state[i][j] = 0; // Cell dies due to overpopulation
                 changed = true;
             } else if cell == 0 && neighbors == 3 {
-                new_grid[i][j] = 1; // Cell is born due to reproduction
+                new_state[i][j] = 1; // Cell is born due to reproduction
                 changed = true;
             }
         }
     }
 
-    grid.history.push(grid.state);
-    grid.state = new_grid;
+    grid.history.push(new_state);
     changed
 }
 
 // Count the number of live neighbors for a given cell
-fn count_neighbors(grid: &[[u8; GRID_WIDTH]; GRID_HEIGHT], row: usize, col: usize) -> u8 {
+fn count_neighbors(state: &State, row: usize, col: usize) -> u8 {
     let mut count = 0;
 
     for i in -1..=1 {
@@ -216,7 +221,7 @@ fn count_neighbors(grid: &[[u8; GRID_WIDTH]; GRID_HEIGHT], row: usize, col: usiz
             let neighbor_row = (row as isize + i + GRID_HEIGHT as isize) % GRID_HEIGHT as isize;
             let neighbor_col = (col as isize + j + GRID_WIDTH as isize) % GRID_WIDTH as isize;
 
-            let neighbor_cell = grid[neighbor_row as usize][neighbor_col as usize];
+            let neighbor_cell = state.cells[neighbor_row as usize][neighbor_col as usize];
             count += neighbor_cell;
         }
     }
@@ -225,39 +230,49 @@ fn count_neighbors(grid: &[[u8; GRID_WIDTH]; GRID_HEIGHT], row: usize, col: usiz
 }
 
 fn main() -> io::Result<()> {
-    let file_path = "grid.txt";
-    let mut grid = read_grid_from_file(file_path)?;
+
+    let mut grid = read_grid_from_folder(HISTORY_FOLDER)?;
 
     let changed = update_cell_state(&mut grid);
 
-    if !changed { grid.randomize(); }
+    if !changed { grid = Grid::random(); }
 
     grid.save_state_history()?;
 
     // Generate animated SVG from history
-    generate_animated_svg()?;
+    generate_animated_svg(grid.history)?;
 
     Ok(())
 }
 
 // Read the grid from a file or generate a random grid if the file doesn't exist
-fn read_grid_from_file(file_path: &str) -> io::Result<Grid> {
-    if Path::new(file_path).exists() {
-        read_grid_existing(file_path)
-    } else {
-        let mut grid = Grid::default();
-        grid.randomize();
-        Ok(grid)
+fn read_grid_from_folder(file_path: &str) -> io::Result<Grid> {
+    if !Path::new(file_path).exists() {
+
+        let mut states: Vec<State> = vec![];
+
+        for entry in fs::read_dir(HISTORY_FOLDER)? {
+            let file = entry?;
+            dbg!("read_grid_from_folder | loading file: {}", file.path().to_string_lossy());
+            states.push(read_state_from_file(file.path())?);
+        }
+
+        if states.len() > 0{
+            states.reverse();
+            return Ok(Grid::new(states));
+        }
     }
+
+    Ok(Grid::random())
 }
 
 // Read the grid from an existing file
-fn read_grid_existing(file_path: &str) -> io::Result<Grid> {
+fn read_state_from_file(file_path: PathBuf) -> io::Result<State> {
     let mut file = fs::File::open(file_path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let mut grid = Grid::default();
+    let mut state = State::default();
     let lines: Vec<&str> = contents.trim().split('\n').collect();
 
     for (i, line) in lines.iter().enumerate().take(GRID_HEIGHT) {
@@ -268,75 +283,90 @@ fn read_grid_existing(file_path: &str) -> io::Result<Grid> {
             .collect();
 
         if values.len() >= GRID_WIDTH {
-            grid.state[i].copy_from_slice(&values[..GRID_WIDTH]);
+            state[i].copy_from_slice(&values[..GRID_WIDTH]);
         } else {
-            grid.state[i][..values.len()].copy_from_slice(&values);
+            state[i][..values.len()].copy_from_slice(&values);
         }
     }
 
-    Ok(grid)
+    Ok(state)
 }
 
-fn parse_state_from_string(grid_string: &str) -> io::Result<State> {
-    let mut cells: [[u8; GRID_WIDTH]; GRID_HEIGHT] = [[0; GRID_WIDTH]; GRID_HEIGHT];
+// fn parse_state_from_string(grid_string: &str) -> io::Result<State> {
+//     let mut cells: [[u8; GRID_WIDTH]; GRID_HEIGHT] = [[0; GRID_WIDTH]; GRID_HEIGHT];
 
-    let lines: Vec<&str> = grid_string.trim().lines().collect();
-    if lines.len() != GRID_HEIGHT {
-        return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid grid height"));
-    }
+//     let lines: Vec<&str> = grid_string.trim().lines().collect();
+//     if lines.len() != GRID_HEIGHT {
+//         return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid grid height"));
+//     }
 
-    for (i, line) in lines.iter().enumerate() {
-        let row: Vec<u8> = line
-            .trim()
-            .chars()
-            .map(|c| c.to_digit(10).unwrap() as u8)
-            .collect();
+//     for (i, line) in lines.iter().enumerate() {
+//         let row: Vec<u8> = line
+//             .trim()
+//             .chars()
+//             .filter_map(|c| c.to_digit(2).map(|d| d as u8))
+//             // .map(|c| c.to_digit(2).expect("Invalid line on parse_state_from_string") as u8)
+//             .collect();
 
-        if row.len() != GRID_WIDTH {
-            return Err(std::io::Error::new(std::io::ErrorKind::Other, "Invalid grid width"));
-        }
+//         if row.len() != GRID_WIDTH {
+//             return Err(std::io::Error::new(std::io::ErrorKind::Other, "Invalid grid width"));
+//         }
 
-        for (j, cell) in row.iter().enumerate() {
-            cells[i][j] = *cell;
-        }
-    }
+//         for (j, cell) in row.iter().enumerate() {
+//             cells[i][j] = *cell;
+//         }
+//     }
 
-    Ok(State { cells })
-}
+//     Ok(State { cells })
+// }
 
-fn generate_animated_svg() -> io::Result<()> {
-    let history_files = fs::read_dir(HISTORY_FOLDER)?;
+fn generate_animated_svg(states: Vec<State>) -> io::Result<()> {
 
     let mut frames = String::new();
 
-    for entry in history_files {
-        let file = entry?;
-
-        let contents = fs::read_to_string(file.path())?;
-        let state = parse_state_from_string(&contents)?;
+    for (i, state) in states.iter().enumerate() {
 
         let frame = state.to_svg_string();
-        let animation_duration = 500; // milliseconds
+        let frame_star = i * SVG_FRAME_DURATION_MS;
+        let frame_end = (i + 1) * SVG_FRAME_DURATION_MS;
 
         frames.push_str(&format!(
             r#"<set attributeName="visibility" to="visible" begin="{}ms" dur="{}ms" fill="freeze" />{}"#,
-            animation_duration,
-            animation_duration,
+            frame_star,
+            frame_end,
             frame
         ));
     }
 
     let svg_string = format!(
         r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}">
-            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+            <rect x="0" y="0" width="100%" height="100%" fill="black" />
             <g visibility="hidden">{}</g>
         </svg>"#,
-        GRID_WIDTH * 10,
-        GRID_HEIGHT * 10,
+        GRID_WIDTH * SVG_CELL_SCALE,
+        GRID_HEIGHT * SVG_CELL_SCALE,
         frames
     );
 
     fs::write("animation.svg", svg_string)?;
+
+    Ok(())
+}
+
+fn delete_all_files_in_directory(dir_path: &str) -> io::Result<()> {
+    // Read the directory
+    let dir_entries = fs::read_dir(dir_path)?;
+
+    // Iterate over the directory entries
+    for entry in dir_entries {
+        if let Ok(entry) = entry {
+            // Check if the entry is a file
+            if entry.file_type()?.is_file() {
+                // Delete the file
+                fs::remove_file(entry.path())?;
+            }
+        }
+    }
 
     Ok(())
 }
