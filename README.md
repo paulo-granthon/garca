@@ -5,7 +5,8 @@
 
 <a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="main.svg"></a>
 
-This is a [Cellular Automata](https://en.wikipedia.org/wiki/Cellular_automaton) implementation in [Rust](https://www.rust-lang.org/) using [GitHub Actions](https://github.com/features/actions) to automatically update the state of the grid. The above image is the current state of the Cellular Automata environment.
+This is a [Cellular Automata](https://en.wikipedia.org/wiki/Cellular_automaton) implementation in [Rust](https://www.rust-lang.org/) using [GitHub Actions](https://github.com/features/actions) to automatically update the state of the grid. The above image is the current state of the Cellular Automata environment.  
+```Press F5 to replay the animation.```  
 
 </div>
 </br>
@@ -46,4 +47,4 @@ on:
 
 # ***todo!()***
 - [x] Animate it somehow.
-- [ ] Allow visitors to request a new update of the grid via <a> tag.
+- [ ] Allow visitors to request the next update of the grid via <a> tag.
