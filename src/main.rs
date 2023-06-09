@@ -3,21 +3,29 @@ use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use rand::Rng;
 
+// Initial probability of generating an '1' cell when reseting the grid (0 ~ 100)
+const RAND_POPULATE_CHANCE: usize = 20;
+
 // Define the dimensions of the grid
 const GRID_WIDTH: usize = 240;
 const GRID_HEIGHT: usize = 32;
 
+// The number of updates per run
+const UPDATES_PER_RUN: usize = 4;
+
 // Define the scaling of the grid
 const SVG_CELL_SCALE: usize = 4;
 
-// Initial probability of generating an '1' cell when reseting the grid (0 ~ 100)
-const RAND_POPULATE_CHANCE: usize = 10;
+// The duration of each frame of the .svg animation in milliseconds 
+const SVG_FRAME_DURATION_MS: usize = 300;
+
+// The delay before the animation starts
+const SVG_START_DELAY_MS: usize = 500;
+
 
 // The name of the folder where the state history of the Grid will be saved 
 const HISTORY_FOLDER: &'static str = "history";
 
-// The duration of each frame of the .svg animation in milliseconds 
-const SVG_FRAME_DURATION_MS: usize = 200;
 
 #[derive(Debug, Clone, Copy)]
 pub struct State {
@@ -262,9 +270,10 @@ fn main() -> io::Result<()> {
 
     let mut grid = read_grid_from_folder(HISTORY_FOLDER)?;
 
-    let changed = update_cell_state(&mut grid);
+    for _ in 0..UPDATES_PER_RUN {
+    
+        if update_cell_state(&mut grid) { continue }
 
-    if !changed {
         println!("grid didn't change in this update");
         grid = Grid::random();
     }
@@ -336,13 +345,13 @@ fn generate_animated_svg(states: Vec<State>) -> io::Result<()> {
         frames.push_str(&format!(
             "\n\t<g opacity=\"{}\">\n\t\t<animate attributeName=\"opacity\" from=\"0\" to=\"1\" begin=\"{}ms\" dur=\"{}ms\" fill=\"freeze\" />",
             1 - std::cmp::min(i, 1),
-            i * SVG_FRAME_DURATION_MS,
+            SVG_START_DELAY_MS + (i * SVG_FRAME_DURATION_MS),
             SVG_FRAME_DURATION_MS
         ));
         if i < states.len() - 1 {
             frames.push_str(&format!(
                 "\n\t\t<animate attributeName=\"opacity\" from=\"1\" to=\"0\" begin=\"{}ms\" dur=\"{}ms\" fill=\"freeze\" />",
-                (i + 1) * SVG_FRAME_DURATION_MS,
+                SVG_START_DELAY_MS + ((i + 1) * SVG_FRAME_DURATION_MS),
                 SVG_FRAME_DURATION_MS
             ));    
         }
