@@ -2,7 +2,6 @@
 
 # **Garca** - GitHub Actions (*Rusty!*) Cellular Automata 
 
-
 <a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="main.svg"></a>
 
 This is a [Cellular Automata](https://en.wikipedia.org/wiki/Cellular_automaton) implementation in [Rust](https://www.rust-lang.org/) using [GitHub Actions](https://github.com/features/actions) to automatically update the state of the grid. The above image is the current state of the Cellular Automata environment.  
@@ -44,6 +43,13 @@ on:
 - The third field (\*) represents the day of the month. An asterisk (\*) in this position means the job will run every day of the month.
 - The fourth field (\*) represents the month. An asterisk (\*) in this position means the job will run every month.
 - The fifth field (\*) represents the day of the week. An asterisk (\*) in this position means the job will run every day of the week.
+
+<br>
+
+## "Hey, that's kinda cool!"
+If you think that, I'll ask you to please give this repository a star. Feel free to fork it and add your own customizations too if you like! have a nice day :)
+
+<br>
 
 # ***todo!()***
 - [x] Animate it somehow.
