@@ -11,7 +11,7 @@ This is a [Cellular Automata](https://en.wikipedia.org/wiki/Cellular_automaton) 
 </br>
 
 # Cellular Automata
-The Cellular Automata can be defined by a grid of ones and zeros with a simple set of rules that gets applied each iteration to generate a new grid based on the state of the previous. A cell is alive if it's value is **1** and dead if it's value is **0**. For each iteration of the program, each cell verifies it's surroundings to define it's new state:
+Cellular Automata can be defined by a grid of ones and zeros with a simple set of rules that are applied in each iteration to generate a new grid based on the state of the previous one. A cell is alive if its value is 1 and dead if its value is 0. For each iteration of the program, each cell checks its surroundings to determine its new state:  
 - Cell is Alive (**1**):
   - It has less than **2** alive neighbours: Cell **dies** due to underpopulation.
   - It has exactly **2** or **3** alive neighbours: Cell **survives** to the next generation.
