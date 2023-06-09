@@ -2,16 +2,16 @@
 
 # **Garca** - GitHub Actions (*Rusty!*) Cellular Automata 
 
+<a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="main.svg"></a>
 
-<a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="animation.svg"></a>
-
-This is a [Cellular Automata](https://en.wikipedia.org/wiki/Cellular_automaton) implementation in [Rust](https://www.rust-lang.org/) using [GitHub Actions](https://github.com/features/actions) to automatically update the state of the grid. The above image is the current state of the Cellular Automata environment.
+This is a [Cellular Automata](https://en.wikipedia.org/wiki/Cellular_automaton) implementation in [Rust](https://www.rust-lang.org/) using [GitHub Actions](https://github.com/features/actions) to automatically update the state of the grid. The above image is the current state of the Cellular Automata environment.  
+```Press F5 to replay the animation.```  
 
 </div>
 </br>
 
 # Cellular Automata
-The Cellular Automata can be defined by a grid of ones and zeros with a simple set of rules that gets applied each iteration to generate a new grid based on the state of the previous. A cell is alive if it's value is **1** and dead if it's value is **0**. For each iteration of the program, each cell verifies it's surroundings to define it's new state:
+Cellular Automata can be defined by a grid of ones and zeros with a simple set of rules that are applied in each iteration to generate a new grid based on the state of the previous one. A cell is alive if its value is 1 and dead if its value is 0. For each iteration of the program, each cell checks its surroundings to determine its new state:  
 - Cell is Alive (**1**):
   - It has less than **2** alive neighbours: Cell **dies** due to underpopulation.
   - It has exactly **2** or **3** alive neighbours: Cell **survives** to the next generation.
@@ -44,5 +44,13 @@ on:
 - The fourth field (\*) represents the month. An asterisk (\*) in this position means the job will run every month.
 - The fifth field (\*) represents the day of the week. An asterisk (\*) in this position means the job will run every day of the week.
 
+<br>
+
+## "Hey, that's kinda cool!"
+If you think that, I'll ask you to please give this repository a star. Feel free to fork it and add your own customizations too if you like! have a nice day :)
+
+<br>
+
 # ***todo!()***
-- [x] Animate it somehow
+- [x] Animate it somehow.
+- [ ] Allow visitors to request the next update of the grid via <a> tag.
