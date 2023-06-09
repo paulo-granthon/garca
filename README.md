@@ -2,8 +2,6 @@
 
 # **Garca** - GitHub Actions (*Rusty!*) Cellular Automata 
 
-<a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="grid.svg"></a>
-
 
 <a href="https://github.com/paulo-granthon/garca"><img alt="paulo-granthon/garca" title="Garca" src="animation.svg"></a>
 
@@ -47,4 +45,4 @@ on:
 - The fifth field (\*) represents the day of the week. An asterisk (\*) in this position means the job will run every day of the week.
 
 # ***todo!()***
-- [ ] Animate it somehow
+- [x] Animate it somehow
