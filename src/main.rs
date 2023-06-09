@@ -8,7 +8,7 @@ const GRID_WIDTH: usize = 240;
 const GRID_HEIGHT: usize = 32;
 
 // Define the scaling of the grid
-const SVG_CELL_SCALE: usize = 2;
+const SVG_CELL_SCALE: usize = 4;
 
 // Initial probability of generating an '1' cell when reseting the grid (0 ~ 100)
 const RAND_POPULATE_CHANCE: usize = 10;
@@ -356,7 +356,7 @@ fn generate_animated_svg(states: Vec<State>) -> io::Result<()> {
         frames
     );
 
-    fs::write("animation.svg", svg_string)?;
+    fs::write("main.svg", svg_string)?;
 
     Ok(())
 }
