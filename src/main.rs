@@ -6,8 +6,8 @@ use rand::Rng;
 // Define the dimensions of the grid
 // const GRID_WIDTH: usize = 240;
 // const GRID_HEIGHT: usize = 32;
-const GRID_WIDTH: usize = 10;
-const GRID_HEIGHT: usize = 10;
+const GRID_WIDTH: usize = 4;
+const GRID_HEIGHT: usize = 4;
 
 // Define the scaling of the grid
 const SVG_CELL_SCALE: usize = 16;
@@ -321,27 +321,24 @@ fn read_state_from_file(file_path: PathBuf) -> io::Result<State> {
 // }
 
 fn generate_animated_svg(states: Vec<State>) -> io::Result<()> {
-
     let mut frames = String::new();
 
     for (i, state) in states.iter().enumerate() {
-
-        let frame = state.to_svg_string();
-        let frame_star = i * SVG_FRAME_DURATION_MS;
+        let frame_start = i * SVG_FRAME_DURATION_MS;
         let frame_end = (i + 1) * SVG_FRAME_DURATION_MS;
 
         frames.push_str(&format!(
-            r#"<set attributeName="visibility" to="visible" begin="{}ms" dur="{}ms" fill="freeze" />{}"#,
-            frame_star,
-            frame_end,
-            frame
+            r#"<animate attributeName="visibility" from="hidden" to="visible" begin="{}ms" dur="{}ms" fill="freeze" />{}"#,
+            frame_start,
+            SVG_FRAME_DURATION_MS,
+            state.to_svg_string()
         ));
     }
 
     let svg_string = format!(
         r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}">
             <rect x="0" y="0" width="100%" height="100%" fill="black" />
-            <g visibility="hidden">{}</g>
+            <g>{}</g>
         </svg>"#,
         GRID_WIDTH * SVG_CELL_SCALE,
         GRID_HEIGHT * SVG_CELL_SCALE,
