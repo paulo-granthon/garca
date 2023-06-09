@@ -45,4 +45,5 @@ on:
 - The fifth field (\*) represents the day of the week. An asterisk (\*) in this position means the job will run every day of the week.
 
 # ***todo!()***
-- [x] Animate it somehow
+- [x] Animate it somehow.
+- [ ] Allow visitors to request a new update of the grid via <a> tag.
