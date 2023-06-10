@@ -2,8 +2,10 @@ mod data; use data::*;
 mod crud; use crud::*;
 
 // file types for state crud and output
-const READ_AND_WRITE: Ext = Ext::TXT;
+const READ: Ext = Ext::TXT;
+const WRITE: Ext = Ext::TXT;
 const RENDER: RenderExt = RenderExt::SVG;
+const OUTPUT: RenderExt = RenderExt::SVG;
 
 // Initial probability of generating an '1' cell when reseting the grid (0 ~ 100)
 const RAND_POPULATE_CHANCE: usize = 20;
@@ -100,9 +102,9 @@ fn count_neighbors(state: &State, row: usize, col: usize) -> u8 {
 }
 
 fn main() -> std::io::Result<()> {
-    let crud: Crud = Crud::new(READ_AND_WRITE, READ_AND_WRITE, RENDER);
+    let crud: Crud = Crud::new(READ, WRITE, RENDER, OUTPUT);
 
-    let mut grid = crud.reader().read_grid(HISTORY_FOLDER)?;
+    let mut grid = crud.read(HISTORY_FOLDER)?;
 
     for _ in 0..UPDATES_PER_RUN {
     
@@ -112,10 +114,10 @@ fn main() -> std::io::Result<()> {
         grid = Grid::random();
     }
 
-    crud.writer().write_grid(&grid)?;
+    crud.write(&grid)?;
 
     // Generate animated SVG from history
-    crud.renderer().render_grid(&grid)?;
+    crud.render(&grid)?;
 
     Ok(())
 }
