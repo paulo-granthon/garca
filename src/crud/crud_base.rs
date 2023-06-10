@@ -1,16 +1,16 @@
 pub(crate) trait Reader {
-    fn read_grid (file_path: &str) -> std::io::Result<crate::data::Grid>;
-    fn read_state (file_path: std::path::PathBuf) -> std::io::Result<crate::data::State>;    
+    fn read_grid (&self, file_path: &str) -> std::io::Result<crate::data::Grid>;
+    fn read_state (&self, file_path: std::path::PathBuf) -> std::io::Result<crate::data::State>;    
 }
 
 pub(crate) trait Writer {
-    fn write_grid (grid: &crate::data::Grid) -> Result<(), std::io::Error>;
-    fn write_state (state: &crate::data::State, file_path: std::path::PathBuf) -> Result<(), std::io::Error>;
+    fn write_grid (&self, grid: &crate::data::Grid) -> Result<(), std::io::Error>;
+    fn write_state (&self, state: &crate::data::State, file_path: std::path::PathBuf) -> Result<(), std::io::Error>;
 }
 
-pub(crate) trait Renderer <T> {
-    fn render_grid (grid: &crate::data::Grid) -> Result<(), std::io::Error>;
-    fn gen_state (state: &crate::data::State) -> Result<T, std::io::Error>;
+pub(crate) trait Renderer {
+    fn render_grid (&self, grid: &crate::data::Grid) -> Result<(), std::io::Error>;
+    fn gen_state (&self, state: &crate::data::State) -> Result<String, std::io::Error>;
 }
 
 pub(crate) fn delete_all_files_in_directory(dir_path: &str) -> std::io::Result<()> {
