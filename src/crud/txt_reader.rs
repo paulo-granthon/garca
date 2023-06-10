@@ -12,8 +12,17 @@ impl super::Reader for TxtReader {
 
             let mut states: Vec<crate::data::State> = vec![];
 
-            for entry in std::fs::read_dir(crate::HISTORY_FOLDER)? {
-                let file = entry?;
+            for file in {
+                let mut files = std::fs::read_dir(crate::HISTORY_FOLDER)?
+                .map(|entry| entry.unwrap())
+                .collect::<Vec<std::fs::DirEntry>>();
+                files.sort_by(|a, b| {
+                    let a_name = a.file_name();
+                    let b_name = b.file_name();
+                    a_name.cmp(&b_name)
+                });
+                files
+            } {
                 println!("read_grid_from_folder | loading file: {} :D", file.path().to_string_lossy());
                 states.push(TxtReader::read_state(file.path())?);
             }
