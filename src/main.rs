@@ -2,7 +2,7 @@ mod data; use data::*;
 mod crud; use crud::*;
 
 // file types for state crud and output
-const READ_AND_WRITE: Ext = Ext::TXT;
+const READ_AND_WRITE: Ext = Ext::PNG;
 const RENDER: RenderExt = RenderExt::SVG;
 
 // Initial probability of generating an '1' cell when reseting the grid (0 ~ 100)

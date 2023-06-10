@@ -47,7 +47,7 @@ impl super::Reader for PngReader {
                     for (x, pixel) in row.enumerate().take(width as usize) {
                         let rgba = pixel.0;
                         let grayscale = (rgba[0] as u32 + rgba[1] as u32 + rgba[2] as u32) / 3;
-                        let cell = if grayscale < 128 { 1 } else { 0 };
+                        let cell = if grayscale >= 128 { 1 } else { 0 };
                         state[y][x] = cell;
                     }
                 }

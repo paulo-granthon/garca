@@ -25,7 +25,7 @@ impl super::Writer for PngWriter {
 
         for (y, row) in state.iter().enumerate().take(height as usize) {
             for (x, &cell) in row.iter().enumerate().take(width as usize) {
-                let color = if cell == 1 { Rgb([0, 0, 0]) } else { Rgb([255, 255, 255]) };
+                let color = if cell == 1 { Rgb([255, 255, 255]) } else { Rgb([0, 0, 0]) };
                 image_buffer.put_pixel(x as u32, y as u32, color);
             }
         }
