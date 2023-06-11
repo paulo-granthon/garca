@@ -1,9 +1,12 @@
 mod crud_base; pub(crate) use crud_base::*;
 
 mod txt_reader; pub(crate) use txt_reader::TxtReader;
+
 mod txt_writer; pub(crate) use txt_writer::TxtWriter;
 
-mod render; pub(crate) use render::*;
+mod svg_renderer; pub(crate) use svg_renderer::SvgRenderer;
+
+mod svg_output; pub(crate) use svg_output::SvgOutput;
 
 pub(crate) enum Ext {
     TXT,
