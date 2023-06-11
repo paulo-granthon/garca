@@ -6,7 +6,9 @@ mod txt_writer; pub(crate) use txt_writer::TxtWriter;
 mod png_reader; pub(crate) use png_reader::PngReader;
 mod png_writer; pub(crate) use png_writer::PngWriter;
 
-mod render; pub(crate) use render::*;
+mod svg_renderer; pub(crate) use svg_renderer::SvgRenderer;
+
+mod svg_output; pub(crate) use svg_output::SvgOutput;
 
 #[allow(dead_code)]
 pub(crate) enum Ext {
