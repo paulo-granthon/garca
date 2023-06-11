@@ -20,13 +20,13 @@ const UPDATES_PER_RUN: usize = 4;
 // Define the scaling of the grid
 const SVG_CELL_SCALE: usize = 4;
 
-// The duration of each frame of the .svg animation in milliseconds 
+// The duration of each frame of the .svg animation in milliseconds
 const SVG_FRAME_DURATION_MS: usize = 300;
 
 // The delay before the animation starts
 const SVG_START_DELAY_MS: usize = 500;
 
-// The name of the folder where the state history of the Grid will be saved 
+// The name of the folder where the state history of the Grid will be saved
 const HISTORY_FOLDER: &'static str = "history";
 
 // Define the rule for updating cell states
@@ -39,18 +39,18 @@ fn update_cell_state(grid: &mut Grid) -> bool {
             let mut new_state : State = previous_state.clone();
 
             // println!("update_cell_state | new_state cloned from grid.current_state()");
-        
+
             for i in 0..GRID_HEIGHT {
                 for j in 0..GRID_WIDTH {
                     let cell = new_state[i][j];
                     let neighbors = count_neighbors(&previous_state, i, j);
-        
+
                     let previous_value = new_state[i][j];
                     let mut new_value = previous_value;
-        
+
                     // if cell == 1 { new_value = 0 }
                     // else if neighbors == 1 { new_value = 1 }
-        
+
                     if cell == 1 && neighbors < 2 {
                         new_value = 0; // Cell dies due to underpopulation
                     }
@@ -66,19 +66,19 @@ fn update_cell_state(grid: &mut Grid) -> bool {
                     else if cell == 0 && neighbors == 3 {
                         new_value = 1; // Cell is born due to reproduction
                     }
-        
+
                     if new_value != previous_value {
                         // println!("update_cell_state | detected change");
                         changed = true;
                     }
-        
+
                     new_state[i][j] = new_value;
                 }
             }
-        
+
             grid.push_history(new_state);
-        
-            // println!("update_cell_state | new_state pushed, now we have {} states in the history!!", grid.history.len());        
+
+            // println!("update_cell_state | new_state pushed, now we have {} states in the history!!", grid.history.len());
         },
         None => {}
     }
@@ -107,7 +107,7 @@ fn main() -> std::io::Result<()> {
     let mut grid = crud.read(HISTORY_FOLDER)?;
 
     for _ in 0..UPDATES_PER_RUN {
-    
+
         if update_cell_state(&mut grid) { continue }
 
         println!("grid didn't change in this update");

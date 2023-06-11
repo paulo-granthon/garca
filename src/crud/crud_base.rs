@@ -1,6 +1,6 @@
 pub(crate) trait Reader {
     fn read_grid (&self, file_path: &str) -> std::io::Result<crate::data::Grid>;
-    fn read_state (&self, file_path: std::path::PathBuf) -> std::io::Result<crate::data::State>;    
+    fn read_state (&self, file_path: std::path::PathBuf) -> std::io::Result<crate::data::State>;
 }
 
 pub(crate) trait Writer {

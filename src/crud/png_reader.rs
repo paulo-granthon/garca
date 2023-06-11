@@ -40,9 +40,9 @@ impl super::Reader for PngReader {
                     height,
                     image::imageops::FilterType::Nearest
                 );
-        
+
                 let mut state = crate::data::State::default();
-        
+
                 for (y, row) in resized_image.rows().enumerate().take(height as usize) {
                     for (x, pixel) in row.enumerate().take(width as usize) {
                         let rgba = pixel.0;
@@ -51,9 +51,9 @@ impl super::Reader for PngReader {
                         state[y][x] = cell;
                     }
                 }
-        
+
                 Ok(state)
-        
+
             }
             _ => return Err(std::io::Error::new(std::io::ErrorKind::Other, "Unsupported image format")),
         }
