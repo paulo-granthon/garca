@@ -2,7 +2,7 @@
 
 pub(crate) struct SvgRenderer {}
 
-impl super::Renderer for SvgRenderer {
+impl crate::crud::Renderer for SvgRenderer {
 
     // Generate an SVG string representation of the grid state
     fn gen_state (&self, state: &crate::data::State) -> Result<String, std::io::Error> {

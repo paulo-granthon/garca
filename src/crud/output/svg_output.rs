@@ -1,6 +1,6 @@
 pub(crate) struct SvgOutput {}
 
-impl crate::crud::Output for SvgOutput {
+impl super::Output for SvgOutput {
 
     fn render (&self, states: Vec<String>) -> Result<(), std::io::Error> {
         let mut frames = String::new();
