@@ -14,6 +14,12 @@ mod svg_output; pub(crate) use svg_output::SvgOutput;
 pub(crate) enum Ext {
     PNG,
     TXT,
+    SVG,
+    // GIF,
+}
+
+pub(crate) trait ExtType {
+    type Type;
 }
 
 impl Ext {
@@ -21,6 +27,7 @@ impl Ext {
         match self {
             Ext::TXT => Box::new(TxtReader{}),
             Ext::PNG => Box::new(PngReader{}),
+            _=> panic!()
         }
     }
 
@@ -28,35 +35,50 @@ impl Ext {
         match self {
             Ext::TXT => Box::new(TxtWriter{}),
             Ext::PNG => Box::new(PngWriter{}),
+            _=> panic!()
         }
     }
-}
 
-pub(crate) enum RenderExt {
-    SVG,    
-}
-
-impl RenderExt {
     pub fn get_renderer (&self) -> Box<dyn Renderer> {
         match self {
-            RenderExt::SVG => Box::new(SvgRenderer{}),
+            Ext::SVG => Box::new(SvgRenderer{}),
+            Ext::PNG => Box::new(PngWriter{}),
+            _=> panic!()
         }
     }
+
     pub fn get_outputer (&self) -> Box<dyn Output> {
         match self {
-            RenderExt::SVG => Box::new(SvgOutput{}),
+            Ext::SVG => Box::new(SvgOutput{}),
+            _=> panic!(),
         }
     }
+
 }
+
+pub enum Render {
+    TxtState(String),
+    PngState(image::ImageBuffer<image::Rgb<u8>, Vec<u8>>),
+}
+
+impl Render {
+    fn error (&self, class: &str, expected: &str) -> std::io::Error {
+        std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("{} Error: Invalid Render variant (TxtState), expected {}", class, expected)
+        )
+    }
+}
+
 pub(crate) struct Crud {
     reader_type: Ext,
     writer_type: Ext,
-    render_type: RenderExt,
-    output_type: RenderExt,
+    render_type: Ext,
+    output_type: Ext,
 }
 
 impl Crud {
-    pub fn new (reader_type: Ext, writer_type: Ext, render_type: RenderExt, output_type: RenderExt) -> Self {
+    pub fn new (reader_type: Ext, writer_type: Ext, render_type: Ext, output_type: Ext) -> Self {
         Self {
             reader_type,
             writer_type,
@@ -70,7 +92,12 @@ impl Crud {
     }
 
     pub fn write (&self, grid: &crate::data::Grid) -> std::io::Result<()> {
-        self.writer_type.get_writer().write_grid(grid)
+        super::delete_all_files_in_directory(crate::HISTORY_FOLDER)?;
+        self.writer_type.get_writer().write_grid(
+            grid.get_history().iter().map(|state|
+                self.render_type.get_renderer().gen_state(state).unwrap_or_else(|_| panic!())
+            ).collect()
+        )
     }
 
     pub fn render (&self, grid: &crate::data::Grid) -> std::io::Result<()> {

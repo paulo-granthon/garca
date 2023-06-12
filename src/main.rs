@@ -1,11 +1,12 @@
 mod data; use data::*;
 mod crud; use crud::*;
+mod util;
 
 // file types for state crud and output
-const READ: Ext = Ext::TXT;
-const WRITE: Ext = Ext::TXT;
-const RENDER: RenderExt = RenderExt::SVG;
-const OUTPUT: RenderExt = RenderExt::SVG;
+const READER: Ext = Ext::PNG;
+const WRITER: Ext = Ext::PNG;
+const RENDER: Ext = Ext::PNG;
+const OUTPUT: Ext = Ext::SVG;
 
 // Initial probability of generating an '1' cell when reseting the grid (0 ~ 100)
 const RAND_POPULATE_CHANCE: usize = 20;
@@ -102,7 +103,7 @@ fn count_neighbors(state: &State, row: usize, col: usize) -> u8 {
 }
 
 fn main() -> std::io::Result<()> {
-    let crud: Crud = Crud::new(READ, WRITE, RENDER, OUTPUT);
+    let crud: Crud = Crud::new(READER, WRITER, RENDER, OUTPUT);
 
     let mut grid = crud.read(HISTORY_FOLDER)?;
 

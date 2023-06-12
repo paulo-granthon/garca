@@ -4,16 +4,15 @@ pub(crate) trait Reader {
 }
 
 pub(crate) trait Writer {
-    fn write_grid (&self, grid: &crate::data::Grid) -> Result<(), std::io::Error>;
-    fn write_state (&self, state: &crate::data::State, file_path: std::path::PathBuf) -> Result<(), std::io::Error>;
+    fn write_grid (&self, states: Vec<crate::crud::Render>) -> Result<(), std::io::Error>;
 }
 
 pub(crate) trait Renderer {
-    fn gen_state (&self, state: &crate::data::State) -> Result<String, std::io::Error>;
+    fn gen_state (&self, state: &crate::data::State) -> Result<crate::crud::Render, std::io::Error>;
 }
 
 pub(crate) trait Output {
-    fn render (&self, states: Vec<String>) -> Result<(), std::io::Error>;
+    fn render (&self, states: Vec<crate::crud::Render>) -> Result<(), std::io::Error>;
 }
 
 pub(crate) fn delete_all_files_in_directory(dir_path: &str) -> std::io::Result<()> {

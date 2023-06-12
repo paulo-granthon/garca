@@ -5,7 +5,7 @@ pub(crate) struct SvgRenderer {}
 impl crate::crud::Renderer for SvgRenderer {
 
     // Generate an SVG string representation of the grid state
-    fn gen_state (&self, state: &crate::data::State) -> Result<String, std::io::Error> {
+    fn gen_state (&self, state: &crate::data::State) -> Result<super::Render, std::io::Error> {
         let mut svg_string = String::new();
 
         svg_string.push_str("\n\t\t<g>");
@@ -30,6 +30,6 @@ impl crate::crud::Renderer for SvgRenderer {
         // SVG footer
         svg_string.push_str("\n\t\t</g>");
 
-        Ok(svg_string)
+        Ok(super::Render::TxtState(svg_string))
     }
 }

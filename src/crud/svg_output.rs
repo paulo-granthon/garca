@@ -2,24 +2,30 @@ pub(crate) struct SvgOutput {}
 
 impl crate::crud::Output for SvgOutput {
 
-    fn render (&self, states: Vec<String>) -> Result<(), std::io::Error> {
+    fn render (&self, renders: Vec<super::Render>) -> Result<(), std::io::Error> {
         let mut frames = String::new();
     
-        for (i, state) in states.iter().enumerate() {
+        for (i, render) in renders.iter().enumerate() {
             frames.push_str(&format!(
                 "\n\t<g opacity=\"{}\">\n\t\t<animate attributeName=\"opacity\" from=\"0\" to=\"1\" begin=\"{}ms\" dur=\"{}ms\" fill=\"freeze\" />",
                 1 - std::cmp::min(i, 1),
                 crate::SVG_START_DELAY_MS + (i * crate::SVG_FRAME_DURATION_MS),
                 crate::SVG_FRAME_DURATION_MS
             ));
-            if i < states.len() - 1 {
+            if i < renders.len() - 1 {
                 frames.push_str(&format!(
                     "\n\t\t<animate attributeName=\"opacity\" from=\"1\" to=\"0\" begin=\"{}ms\" dur=\"{}ms\" fill=\"freeze\" />",
                     crate::SVG_START_DELAY_MS + ((i + 1) * crate::SVG_FRAME_DURATION_MS),
                     crate::SVG_FRAME_DURATION_MS
                 ));    
             }
-            frames.push_str(&format!("{}\n\t</g>", state));
+            frames.push_str(
+                &format!("{}\n\t</g>",
+                match render {
+                    super::Render::TxtState(data) => data.to_owned(),
+                    super::Render::PngState(data) => crate::util::img_to_svg::image_to_svg(&data)
+                }
+            ));
         }
     
         let svg_string = format!(
