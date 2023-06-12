@@ -15,7 +15,7 @@ pub(crate) fn image_to_svg(image_buffer: &image::ImageBuffer<image::Rgb<u8>, Vec
     // Write the image data to the encoder
     encoder.encode(&image_buffer, width, height, image::ColorType::Rgb8).expect("Failed to encode PNG");
 
-    svg.push_str("\n\t\t<image xlink:href=\"data:image/png;charset=utf-8;base64,");
+    svg.push_str("\n\t\t<image href=\"data:image/png;charset=utf-8;base64,");
     svg.push_str(BASE64.encode(png_data).as_str());
     svg.push_str("\"");
     svg.push_str(format!(" width=\"{}\" height=\"{}\"", width, height).as_str());
